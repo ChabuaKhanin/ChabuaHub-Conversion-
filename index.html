@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ChabuaHub_CHB</title>
+
+  <!-- PWA & Mobile App Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ChabuaHub">
+  <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22ChabuaHub%20Dashboard%22%2C%22short_name%22%3A%22ChabuaHub%22%2C%22start_url%22%3A%22%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f1f5f9%22%2C%22theme_color%22%3A%22%230284c7%22%7D">
+
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: { brand: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0284c7', 600: '#0284c7', 700: '#0369a1' } }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; color: #1e293b; }
+
+    /* Number Spinners Hide */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    /* Yellow Teller Box */
+    .yellow-highlight-box { background-color: #fef08a; color: #000; box-shadow: 0 0 15px rgba(254, 240, 138, 0.5); }
+
+    /* Compact 3D KPI Tabs */
+    .tab-btn-3d {
+      background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+      border: 1px solid #cbd5e1;
+      border-bottom: 3px solid #94a3b8;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      transition: all 0.15s ease-in-out;
+    }
+    .tab-btn-3d:hover {
+      background: #f8fafc;
+      transform: translateY(-1px);
+    }
+    .tab-btn-3d.active {
+      background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff !important;
+      border: 1px solid #0369a1;
+      border-top: 3px solid #0284c7;
+      border-bottom: 1px solid #0369a1;
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);
+    }
+    .tab-btn-3d.active i { color: #ffffff !important; }
+
+    /* Compact Animated KPI Cards */
+    @keyframes kpiFloatPulse {
+      0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+      50% { transform: translateY(-2px) scale(1.01); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.12); }
+    }
+    .kpi-animated-card {
+      animation: kpiFloatPulse 4s ease-in-out infinite;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .kpi-animated-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 14px rgba(2, 132, 199, 0.18);
+      border-color: #0284c7;
+    }
+
+    /* Smooth Custom Scroll */
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    /* Header Centered Animation */
+    @keyframes titleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    @keyframes titleShimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .animated-title-box {
+      animation: titleFloat 3.5s ease-in-out infinite;
+    }
+    .shimmer-text {
+      background: linear-gradient(90deg, #0284c7 0%, #2563eb 25%, #38bdf8 50%, #2563eb 75%, #0284c7 100%);
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: titleShimmer 4s linear infinite;
+    }
+
+    /* Scanner Viewport */
+    #reader video { object-fit: cover; border-radius: 12px; }
+    #reader__dashboard_section button {
+      background: #0284c7 !important;
+      color: #ffffff !important;
+      font-weight: bold !important;
+      border-radius: 6px !important;
+      padding: 6px 12px !important;
+      border: none !important;
+    }
+
+    :focus-visible {
+      outline: 3px solid #0369a1;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-100">
+
+  <div class="max-w-7xl mx-auto w-full p-3 sm:p-5">
+
+    <!-- HEADER -->
+    <header class="grid grid-cols-[1fr_auto_1fr] items-center bg-white border border-slate-200 px-4 py-2.5 rounded-2xl shadow-sm mb-3">
+      <div></div>
+      <h1 class="animated-title-box text-base sm:text-lg font-black tracking-tight shimmer-text whitespace-nowrap">ChabuaHub_CHB</h1>
+      <div class="flex justify-end items-center gap-2">
+        <span id="statusDot" role="status" aria-label="Connecting to dashboard data" class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+        <button id="refreshButton" onclick="fetchSheetData()" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 transition active:scale-95 flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-arrows-rotate"></i> <span>Refresh</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <nav role="tablist" aria-label="Dashboard sections" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pb-2 mb-4 border-b border-slate-200">
+      <button id="tabDaily" role="tab" aria-selected="true" aria-controls="dailySection" onclick="switchMainTab('daily')" class="tab-btn-3d active px-2.5 py-2 rounded-xl font-extrabold text-xs sm:text-sm whitespace-nowrap flex items-center justify-center gap-1.5 text-slate-700">
+        <i class="fa-solid fa-bolt text-sky-600"></i> Daily View
+      </button>
+      <button id="tabOverall" role="tab" aria-selected="false" aria-controls="overallSection" onclick="switchMainTab('overall')" class="tab-btn-3d px-2.5 py-2 rounded-xl font-extrabold text-xs sm:text-sm whitespace-nowrap flex items-center justify-center gap-1.5 text-slate-700">
+        <i class="fa-solid fa-chart-line text-indigo-600"></i> Overall Conv.
+      </button>
+      <button id="tabScanner" role="tab" aria-selected="false" aria-controls="scannerSection" onclick="switchMainTab('scanner')" class="tab-btn-3d px-2.5 py-2 rounded-xl font-extrabold text-xs sm:text-sm whitespace-nowrap flex items-center justify-center gap-1.5 text-slate-700">
+        <i class="fa-solid fa-barcode text-amber-600"></i> Live Scanner
+      </button>
+      <button id="tabCash" role="tab" aria-selected="false" aria-controls="cashSection" onclick="switchMainTab('cash')" class="tab-btn-3d px-2.5 py-2 rounded-xl font-extrabold text-xs sm:text-sm whitespace-nowrap flex items-center justify-center gap-1.5 text-slate-700">
+        <i class="fa-solid fa-indian-rupee-sign text-emerald-600"></i> Cash Counter
+      </button>
+      <button id="tabPickup" role="tab" aria-selected="false" aria-controls="pickupSection" onclick="switchMainTab('pickup')" class="tab-btn-3d px-2.5 py-2 rounded-xl font-extrabold text-xs sm:text-sm whitespace-nowrap flex items-center justify-center gap-1.5 text-slate-700">
+        <i class="fa-solid fa-box-open text-violet-600"></i> Pickup
+      </button>
+      <button id="tabConversion" role="tab" aria-selected="false" aria-controls="conversionSection" onclick="switchMainTab('conversion')" class="tab-btn-3d px-2.5 py-2 rounded-xl font-extrabold text-xs sm:text-sm whitespace-nowrap flex items-center justify-center gap-1.5 text-slate-700">
+        <i class="fa-solid fa-chart-simple text-cyan-700"></i> Conversion
+      </button>
+    </nav>
+
+    <!-- 1. DAILY SECTION -->
+    <div id="dailySection" role="tabpanel" aria-labelledby="tabDaily" class="space-y-3">
+      <div id="primaryMetrics" class="grid grid-cols-2 md:grid-cols-4 gap-2.5"></div>
+      <div id="secondaryMetrics" class="grid grid-cols-2 md:grid-cols-4 gap-2.5"></div>
+
+      <div class="bg-white border border-slate-300 rounded-2xl overflow-hidden shadow-sm">
+        <div class="p-3.5 bg-gradient-to-r from-slate-50 via-sky-50/30 to-slate-50 border-b border-slate-300 flex justify-end items-center gap-3">
+          <label class="sr-only" for="searchDaily">Search agents in today's report</label>
+          <input id="searchDaily" oninput="renderTables()" type="search" placeholder="Search Agent Name..." class="w-full sm:w-64 px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-xs font-semibold text-slate-800 focus:border-sky-500 shadow-inner">
+        </div>
+        <div class="overflow-x-auto custom-scroll">
+          <table class="w-full text-xs text-center border-collapse border border-slate-300">
+            <thead class="sticky top-0 bg-slate-100 text-slate-700 uppercase text-[11px] font-black z-20 shadow-sm">
+              <tr>
+                <th class="p-3 text-center min-w-[140px] border border-slate-300 bg-slate-100">Agent Name</th>
+                <th class="p-3 border border-slate-300 bg-slate-100">Conv. %</th>
+                <th class="p-3 border border-slate-300 bg-slate-100">OFD</th>
+                <th class="p-3 text-emerald-800 border border-slate-300 bg-slate-100">DEL</th>
+                <th class="p-3 text-rose-800 border border-slate-300 bg-slate-100">ORC</th>
+                <th class="p-3 text-amber-800 border border-slate-300 bg-slate-100">CNR</th>
+                <th class="p-3 text-indigo-800 border border-slate-300 bg-slate-100">RFR</th>
+                <th class="p-3 text-orange-800 border border-slate-300 bg-slate-100">Havy load</th>
+              </tr>
+            </thead>
+            <tbody id="todayTable" class="divide-y divide-slate-300 text-slate-900 font-bold"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. OVERALL SECTION -->
+    <div id="overallSection" role="tabpanel" aria-labelledby="tabOverall" class="hidden space-y-3">
+      <div id="cumPrimaryMetrics" class="grid grid-cols-2 md:grid-cols-4 gap-2.5"></div>
+      <div id="cumSecondaryMetrics" class="grid grid-cols-2 md:grid-cols-4 gap-2.5"></div>
+
+      <div class="bg-white border border-slate-300 rounded-2xl overflow-hidden shadow-sm">
+        <div class="p-3.5 bg-gradient-to-r from-slate-50 via-indigo-50/30 to-slate-50 border-b border-slate-300 flex justify-end items-center gap-3">
+          <label class="sr-only" for="searchOverall">Search agents in overall report</label>
+          <input id="searchOverall" oninput="renderTables()" type="search" placeholder="Search Agent Name..." class="w-full sm:w-64 px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-xs font-semibold text-slate-800 focus:border-indigo-500 shadow-inner">
+        </div>
+        <div class="overflow-x-auto custom-scroll">
+          <table class="w-full text-xs text-center border-collapse border border-slate-300">
+            <thead class="sticky top-0 bg-slate-100 text-slate-700 uppercase text-[11px] font-black z-20 shadow-sm">
+              <tr>
+                <th class="p-3 text-center min-w-[140px] border border-slate-300 bg-slate-100">Agent Name</th>
+                <th class="p-3 border border-slate-300 bg-slate-100">Conv. %</th>
+                <th class="p-3 border border-slate-300 bg-slate-100">OFD</th>
+                <th class="p-3 text-emerald-800 border border-slate-300 bg-slate-100">DEL</th>
+                <th class="p-3 text-rose-800 border border-slate-300 bg-slate-100">ORC</th>
+                <th class="p-3 text-amber-800 border border-slate-300 bg-slate-100">CNR</th>
+                <th class="p-3 text-indigo-800 border border-slate-300 bg-slate-100">RFR</th>
+                <th class="p-3 text-orange-800 border border-slate-300 bg-slate-100">Havy load</th>
+              </tr>
+            </thead>
+            <tbody id="cumulativeTable" class="divide-y divide-slate-300 text-slate-900 font-bold"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. LIVE SCANNER PRO SECTION -->
+    <div id="scannerSection" role="tabpanel" aria-labelledby="tabScanner" class="hidden max-w-lg mx-auto space-y-4">
+      <div class="bg-white border border-slate-300 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
+            <i class="fa-solid fa-barcode"></i> Pro Barcode Scanner
+          </div>
+          <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+            <button id="modeSingleBtn" onclick="setScannerMode('single')" class="px-3 py-1 rounded-lg bg-white text-slate-900 shadow-sm transition">Single</button>
+            <button id="modeBatchBtn" onclick="setScannerMode('batch')" class="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">Batch (<span id="batchCount">0</span>)</button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+            <span>Camera Viewport</span>
+            <button onclick="toggleCamera()" id="toggleCamBtn" class="text-sky-700 hover:underline flex items-center gap-1 font-extrabold">
+              <i class="fa-solid fa-video-slash"></i> <span>Stop Camera</span>
+            </button>
+          </div>
+          <div id="reader" aria-label="Camera scanner" class="overflow-hidden rounded-xl border border-slate-300 bg-slate-50 min-h-[170px] flex items-center justify-center shadow-inner">
+            <span class="text-xs text-slate-500 font-medium">Camera preview active...</span>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <label class="sr-only" for="manualInput">Tracking ID or AWB</label>
+          <input type="text" id="manualInput" onkeydown="if(event.key==='Enter') manualScan()" placeholder="Enter Tracking ID / AWB..." class="flex-1 px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs font-mono focus:border-amber-500 shadow-inner">
+          <button onclick="manualScan()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs transition active:scale-95 shadow-sm">
+            Lookup
+          </button>
+        </div>
+
+        <div id="scannerResultBox" role="status" aria-live="polite" class="hidden rounded-xl p-4 border text-left space-y-3 transition-all">
+          <div class="flex items-center justify-between">
+            <span id="scanStatusBadge" class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded">STATUS</span>
+            <span id="scanTime" class="text-[10px] text-slate-600 font-medium"></span>
+          </div>
+
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-300 flex items-center justify-between shadow-inner">
+            <div class="truncate mr-2">
+              <span class="text-[10px] uppercase font-bold text-slate-600 block">Order ID</span>
+              <span id="resOrderId" class="text-base sm:text-lg font-black text-emerald-700 font-mono tracking-wide truncate block">--</span>
+            </div>
+            <button onclick="copyOrderId()" title="Copy Order ID" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 flex items-center justify-center transition active:scale-90 shadow-sm flex-shrink-0">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-300 shadow-inner">
+              <span class="text-[10px] uppercase font-bold text-slate-600 block">Price</span>
+              <span id="resPrice" class="text-sm sm:text-base font-black text-amber-700 truncate block">₹0</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-300 shadow-inner truncate">
+              <span class="text-[10px] uppercase font-bold text-slate-600 block">Bag ID</span>
+              <span id="resBagId" class="text-xs font-bold text-indigo-800 font-mono truncate block">--</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-300 shadow-inner truncate">
+              <span class="text-[10px] uppercase font-bold text-slate-600 block">Tracking ID</span>
+              <span id="resTrackingId" class="text-xs font-bold text-slate-800 font-mono truncate block">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-slate-200">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left text-slate-500"></i> Recent Scans (<span id="historyCount">0</span>)</span>
+            <div class="flex items-center gap-2">
+              <button onclick="exportBatchScans()" id="exportBatchBtn" class="hidden text-sky-700 hover:underline text-[11px] font-bold"><i class="fa-solid fa-download"></i> Export List</button>
+              <button onclick="clearScanHistory()" class="text-rose-700 hover:underline text-[11px] font-bold">Clear</button>
+            </div>
+          </div>
+          <div id="scanHistoryList" class="max-h-48 overflow-y-auto custom-scroll space-y-1.5 text-xs">
+            <div class="text-center py-4 text-slate-500 text-xs">No items scanned yet in this session.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 4. CASH COUNTER SECTION -->
+    <div id="cashSection" role="tabpanel" aria-labelledby="tabCash" class="hidden max-w-md mx-auto space-y-4">
+
+      <div role="tablist" aria-label="Cash counter sections" class="flex bg-slate-200 p-1 rounded-xl">
+        <button id="subTabCalc" role="tab" aria-selected="true" aria-controls="cashCalcPanel" onclick="switchCashSubTab('calc')" class="flex-1 py-1.5 text-center text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm">
+          Calculation
+        </button>
+        <button id="subTabReport" role="tab" aria-selected="false" aria-controls="cashReportPanel" onclick="switchCashSubTab('report')" class="flex-1 py-1.5 text-center text-xs font-bold rounded-lg text-slate-700 hover:text-slate-900">
+          Report
+        </button>
+      </div>
+
+      <div id="cashCalcPanel" role="tabpanel" aria-labelledby="subTabCalc" class="space-y-4">
+
+        <div class="bg-white border border-slate-300 rounded-2xl p-4 shadow-sm space-y-2">
+          <label for="teller-balance-input" class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-calculator text-amber-500"></i> Teller Balance (Optional)
+          </label>
+          <input type="number" min="0" id="teller-balance-input" oninput="calculateCash()" placeholder="0" class="w-full py-2.5 px-3 yellow-highlight-box border-2 border-yellow-400 rounded-xl text-2xl font-black">
+          <div id="tellerStatusBadge" class="hidden text-center text-xs font-black pt-1"></div>
+        </div>
+
+        <div class="bg-white border border-slate-300 rounded-2xl p-4 shadow-sm space-y-2.5">
+          <div id="denomRows" class="space-y-2"></div>
+
+          <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-200 text-sm font-bold">
+            <span class="w-12 text-slate-700">Coins</span>
+            <span class="text-slate-500">=</span>
+            <label class="sr-only" for="count-coins">Coin value in rupees</label>
+            <input type="number" min="0" id="count-coins" oninput="calculateCash()" class="w-28 py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-center text-slate-900 font-black focus:border-sky-500 shadow-inner">
+            <span class="text-slate-500">=</span>
+            <span class="w-24 text-right font-black text-slate-900" id="subtotal-coins">0</span>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-300 p-4 rounded-2xl shadow-sm text-center space-y-1">
+          <div class="text-[11px] uppercase font-extrabold text-slate-500">Total Cash Amount</div>
+          <div class="text-3xl font-black text-sky-700 tracking-tight" id="inpage-total-amount">₹0</div>
+          <p id="total-in-words" class="text-[11px] text-slate-600 italic">Zero Rupees Only</p>
+        </div>
+
+        <div>
+          <button onclick="resetCash()" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-300 transition active:scale-95 shadow-sm">
+            <i class="fa-solid fa-rotate-right"></i> Reset All
+          </button>
+        </div>
+
+      </div>
+
+      <div id="cashReportPanel" role="tabpanel" aria-labelledby="subTabReport" class="hidden bg-white border border-slate-300 rounded-2xl p-4 shadow-sm space-y-3">
+        <div class="text-center pb-2 border-b border-slate-200">
+          <h3 class="text-sm font-black text-slate-900 uppercase">Cash Tally Summary</h3>
+          <span id="report-date-str" class="text-[10px] text-slate-500"></span>
+        </div>
+
+        <div id="report-item-list" class="space-y-1.5 text-xs text-slate-700"></div>
+
+        <div class="pt-2 border-t border-slate-300 flex justify-between items-center">
+          <span class="text-xs text-slate-600 uppercase font-bold">Grand Total</span>
+          <span id="report-total-sum" class="text-xl font-black text-emerald-700">₹0</span>
+        </div>
+
+        <div class="pt-2">
+          <button onclick="copyCashReport()" class="w-full py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition">
+            <i class="fa-regular fa-copy"></i> Copy Report Text
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 5. PICKUP SECTION -->
+    <section id="pickupSection" role="tabpanel" aria-labelledby="tabPickup" class="hidden space-y-3">
+      <div class="bg-white border border-slate-300 rounded-2xl overflow-hidden shadow-sm">
+        <div class="p-3.5 bg-gradient-to-r from-slate-50 via-violet-50/30 to-slate-50 border-b border-slate-300 flex justify-between items-center gap-3">
+          <label class="sr-only" for="searchPickup">Search pickup records</label>
+          <input id="searchPickup" oninput="filterPickupTable()" type="search" placeholder="Search Pickup..." class="w-full sm:w-64 px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-xs font-semibold text-slate-800 focus:border-violet-500 shadow-inner">
+          <button id="pickupRefreshButton" onclick="loadPickupData(true)" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-violet-50 text-violet-800 border border-violet-200 hover:bg-violet-100 transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-arrows-rotate"></i> Refresh
+          </button>
+        </div>
+        <div id="pickupContent" class="text-sm text-slate-700" role="status" aria-live="polite">
+          Loading Pickup data...
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CONVERSION SECTION -->
+    <section id="conversionSection" role="tabpanel" aria-labelledby="tabConversion" class="hidden space-y-3">
+      <div class="flex items-center justify-between gap-2 bg-white border border-slate-300 rounded-2xl px-4 py-2.5 shadow-sm">
+        <label class="sr-only" for="conversionDate">Select date</label>
+        <input id="conversionDate" type="date" onchange="onConversionDateChange()" class="px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-xs font-semibold text-slate-800">
+        <button id="conversionRefreshButton" onclick="loadConversionData(true)" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-cyan-50 text-cyan-900 border border-cyan-200 hover:bg-cyan-100 transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-arrows-rotate"></i> Refresh
+        </button>
+      </div>
+      <div class="bg-white border border-slate-300 rounded-2xl overflow-hidden shadow-sm">
+        <div id="conversionContent" class="text-sm text-slate-700" role="status" aria-live="polite">
+          Loading data...
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Toast Notification Pop-up -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300">
+    <div class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl shadow-2xl text-xs font-bold text-white flex items-center gap-2">
+      <span id="toastIcon" class="text-sky-400">✓</span>
+      <span id="toastMsg">Notification</span>
+    </div>
+  </div>
+
+  <script>
+    // BACKEND APPS SCRIPT URL & DIRECT SHEET ID
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgfAHlddgGLVKK2urgEDAzx2FXwo1KuNg2yynnblGCS07gBclCHIM4xUTkEdK8YVWzRw/exec";
+    const SHEET_ID = "1AAK0GM4NzmpdLCvbHUFd8bQMJyWIffXW5PNBuRU4Xsk";
+
+    let todayData = [];
+    let cumulativeData = [];
+    let rawPickupRows = [];
+    let scannerInstance = null;
+    let cameraActive = true;
+    let scannerMode = 'single';
+    let scanHistory = [];
+    let fetchInProgress = false;
+    let lastScanCode = "";
+    let lastScanTime = 0;
+    let toastTimer = null;
+    const denoms = [500, 200, 100, 50, 20, 10];
+
+    // Direct Google Sheet JSONP Loader
+    function fetchDirectGoogleSheetTab(sheetNames) {
+      const candidates = Array.isArray(sheetNames) ? sheetNames : [sheetNames];
+      return new Promise((resolve) => {
+        const trySheet = (index) => {
+          if (index >= candidates.length) {
+            resolve([]);
+            return;
+          }
+          const sheetName = candidates[index];
+          const cbName = "gvizCb_" + Math.random().toString(36).slice(2);
+          const script = document.createElement("script");
+          const timer = setTimeout(() => {
+            cleanup();
+            trySheet(index + 1);
+          }, 8000);
+
+          function cleanup() {
+            clearTimeout(timer);
+            delete window[cbName];
+            if (script.parentNode) script.parentNode.removeChild(script);
+          }
+
+          window[cbName] = function(response) {
+            cleanup();
+            try {
+              if (!response || response.status === "error" || !response.table) {
+                trySheet(index + 1);
+                return;
+              }
+              const cols = (response.table.cols || []).map((c, idx) => String(c.label || c.id || `Col_${idx + 1}`).trim());
+              const rawRows = response.table.rows || [];
+              let headers = cols;
+              let startIdx = 0;
+              const hasRealLabels = response.table.cols.some(c => c.label && String(c.label).trim() !== "");
+              if (!hasRealLabels && rawRows.length > 0) {
+                headers = (rawRows[0].c || []).map((cell, idx) => String(cell?.f ?? cell?.v ?? `Col_${idx + 1}`).trim());
+                startIdx = 1;
+              }
+              const parsed = [];
+              for (let i = startIdx; i < rawRows.length; i++) {
+                const cells = rawRows[i]?.c || [];
+                const obj = {};
+                let hasData = false;
+                headers.forEach((h, cIdx) => {
+                  if (!h) return;
+                  const cell = cells[cIdx];
+                  const val = cell ? (cell.f !== undefined && cell.f !== null ? cell.f : (cell.v ?? "")) : "";
+                  if (val !== "" && val !== null) hasData = true;
+                  obj[h] = val;
+                });
+                if (hasData) parsed.push(obj);
+              }
+              if (parsed.length > 0) resolve(parsed);
+              else trySheet(index + 1);
+            } catch (e) {
+              trySheet(index + 1);
+            }
+          };
+
+          script.onerror = () => {
+            cleanup();
+            trySheet(index + 1);
+          };
+          script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}&sheet=${encodeURIComponent(sheetName)}`;
+          document.body.appendChild(script);
+        };
+        trySheet(0);
+      });
+    }
+
+    function switchMainTab(tab) {
+      document.getElementById('dailySection').classList.toggle('hidden', tab !== 'daily');
+      document.getElementById('overallSection').classList.toggle('hidden', tab !== 'overall');
+      document.getElementById('scannerSection').classList.toggle('hidden', tab !== 'scanner');
+      document.getElementById('cashSection').classList.toggle('hidden', tab !== 'cash');
+      document.getElementById('pickupSection').classList.toggle('hidden', tab !== 'pickup');
+      document.getElementById('conversionSection').classList.toggle('hidden', tab !== 'conversion');
+
+      const tabs = ['daily', 'overall', 'scanner', 'cash', 'pickup', 'conversion'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('tab' + (t === 'overall' ? 'Overall' : t.charAt(0).toUpperCase() + t.slice(1)));
+        const selected = t === tab;
+        btn.classList.toggle('active', selected);
+        btn.setAttribute('aria-selected', String(selected));
+      });
+
+      if (tab === 'scanner') {
+        setTimeout(() => startScanner(), 150);
+      } else {
+        stopScanner();
+      }
+      if (tab === 'pickup') loadPickupData();
+      if (tab === 'conversion') loadConversionData();
+    }
+
+    function getConvBadge(val) {
+      const num = parseFloat(val);
+      if (isNaN(num)) return `<span class="font-black text-slate-600">0.00%</span>`;
+      let badgeStyle = num >= 85 ? "background:#dcfce7; color:#15803d; border:1px solid #bbf7d0;" : (num >= 83 ? "background:#fef9c3; color:#a16207; border:1px solid #fef08a;" : "background:#fee2e2; color:#b91c1c; border:1px solid #fecaca;");
+      return `<span style="${badgeStyle}" class="inline-block px-2.5 py-1 rounded-md font-black text-xs shadow-xs">${num.toFixed(2)}%</span>`;
+    }
+
+    function normalize(k) { return String(k ?? "").toLowerCase().replace(/[^a-z0-9]/g, ""); }
+    function toNumber(v) { const n = parseFloat(String(v ?? 0).replace(/,/g, "").replace(/%/g, "")); return Number.isFinite(n) ? n : 0; }
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[char]);
+    }
+
+    function normalizeSheetPayload(payload) {
+      if (!Array.isArray(payload) || payload.length === 0) return [];
+      if (Array.isArray(payload[0])) {
+        const headers = payload[0].map((h, i) => String(h || `Col_${i + 1}`).trim());
+        const result = [];
+        for (let i = 1; i < payload.length; i++) {
+          const row = payload[i];
+          if (!Array.isArray(row) || row.every(c => c === "" || c === null || c === undefined)) continue;
+          const obj = {};
+          headers.forEach((h, idx) => { obj[h] = row[idx]; });
+          result.push(obj);
+        }
+        return result;
+      }
+      return payload;
+    }
+
+    function getValue(row, aliases) {
+      const entries = Object.entries(row || {}).map(([key, value]) => ({ key: normalize(key), value }));
+      const exact = entries.find(item => aliases.includes(item.key));
+      if (exact && exact.value !== "" && exact.value != null) return exact.value;
+      const long = aliases.filter(a => a.length >= 3);
+      const tail = entries.find(item => long.some(a => item.key.endsWith(a)));
+      if (tail) return tail.value;
+      const spec = entries.find(item => long.some(a => item.key.includes(a)));
+      return spec ? spec.value : 0;
+    }
+
+    function processRows(rawRows) {
+      const rows = normalizeSheetPayload(rawRows);
+      if (!Array.isArray(rows)) return [];
+      return rows.filter(r => {
+        if (!r) return false;
+        const joined = String(Object.values(r).join(" ")).toLowerCase().trim();
+        return joined.length > 0 && !joined.includes("grand total") && !joined.startsWith("total");
+      }).map((row, idx) => {
+        const ofd = toNumber(getValue(row, ["sumofd", "ofd", "totalofd", "outfordelivery"]));
+        const del = toNumber(getValue(row, ["sumdel", "del", "delivered", "success"]));
+        return {
+          name: String(getValue(row, ["agentname", "name", "wishmaster", "employee", "fe", "fename"]) || `Agent ${idx + 1}`).trim(),
+          ofd, del,
+          orc: toNumber(getValue(row, ["sumorc", "orc", "cancel", "rejected"])),
+          cnr: toNumber(getValue(row, ["sumcnr", "cnr", "notreachable", "noresponse"])),
+          rfr: toNumber(getValue(row, ["sumrfr", "rfr", "return", "reschedule", "replacement"])),
+          heavyLoad: toNumber(getValue(row, ["sumhavyload", "heavyload", "havyload", "load", "heavy"])),
+          conversion: ofd > 0 ? ((del / ofd) * 100).toFixed(2) : "0.00"
+        };
+      });
+    }
+
+    function setConnectionStatus(state) {
+      const dot = document.getElementById("statusDot");
+      const styles = {
+        online: ["bg-emerald-500", "System online"],
+        offline: ["bg-rose-500", "Connection failed"],
+        loading: ["bg-amber-500", "Connecting to dashboard data"]
+      };
+      const [color, label] = styles[state];
+      dot.classList.remove("bg-emerald-500", "bg-rose-500", "bg-amber-500");
+      dot.classList.add(color);
+      dot.setAttribute("aria-label", label);
+      dot.title = label;
+    }
+
+    async function fetchSheetData(silent = false) {
+      if (fetchInProgress) return;
+      fetchInProgress = true;
+      const btn = document.getElementById("refreshButton");
+      btn.innerHTML = `<i class="fa-solid fa-arrows-rotate fa-spin"></i> Loading...`;
+      btn.disabled = true;
+      setConnectionStatus("loading");
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, { signal: controller.signal });
+        if (!res.ok) throw new Error(`Backend returned HTTP ${res.status}`);
+        const data = await res.json();
+
+        todayData = processRows(data.liveData || []);
+        cumulativeData = processRows(data.cumulativeData || []);
+        if (Array.isArray(data.pickupData) && data.pickupData.length > 0) {
+          rawPickupRows = normalizeSheetPayload(data.pickupData);
+        }
+        conversionCache = {};
+
+        renderDashboard();
+        setConnectionStatus("online");
+        if (!silent) showToast("Data refreshed successfully!");
+      } catch (err) {
+        console.error("Dashboard refresh failed:", err);
+        setConnectionStatus("offline");
+        showToast("Could not load dashboard data.", true);
+      } finally {
+        clearTimeout(timeoutId);
+        btn.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i> <span>Refresh</span>`;
+        btn.disabled = false;
+        fetchInProgress = false;
+      }
+    }
+
+    function metricCard(title, val, icon, color, borderAccent, delayAnim = "0s") {
+      return `<div class="kpi-animated-card bg-white border border-slate-300 border-l-4 ${borderAccent} px-3.5 py-3 rounded-2xl shadow-sm flex items-center justify-between" style="animation-delay: ${delayAnim};">
+        <div class="truncate mr-2">
+          <div class="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">${title}</div>
+          <div class="text-base sm:text-lg font-black text-slate-900 tracking-tight">${val}</div>
+        </div>
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm flex-shrink-0 shadow-inner ${color}">${icon}</div>
+      </div>`;
+    }
+
+    function renderDashboard() {
+      const calcMetrics = (arr) => arr.reduce((t, r) => {
+        t.ofd += r.ofd; t.del += r.del; t.orc += r.orc; t.cnr += r.cnr; t.rfr += r.rfr; t.heavy += r.heavyLoad;
+        return t;
+      }, { ofd:0, del:0, orc:0, cnr:0, rfr:0, heavy:0 });
+
+      // Daily Cards
+      const tTot = calcMetrics(todayData);
+      const tRate = tTot.ofd ? ((tTot.del / tTot.ofd) * 100).toFixed(2) : "0.00";
+      document.getElementById('primaryMetrics').innerHTML = [
+        metricCard("Total OFD", tTot.ofd, "🚚", "bg-sky-50 text-sky-700 border border-sky-200", "border-l-sky-500", "0s"),
+        metricCard("Delivered", tTot.del, "✓", "bg-emerald-50 text-emerald-700 border border-emerald-200", "border-l-emerald-500", "0.3s"),
+        metricCard("Hub Conversion", tRate + "%", "↗", "bg-purple-50 text-purple-700 border border-purple-200", "border-l-purple-500", "0.6s"),
+        metricCard("Active Agents", todayData.length, "👥", "bg-cyan-50 text-cyan-700 border border-cyan-200", "border-l-cyan-500", "0.9s")
+      ].join("");
+
+      document.getElementById('secondaryMetrics').innerHTML = [
+        metricCard("Cancel (ORC)", tTot.orc, "✕", "bg-rose-50 text-rose-700 border border-rose-200", "border-l-rose-500", "1.2s"),
+        metricCard("No Response (CNR)", tTot.cnr, "☎", "bg-amber-50 text-amber-700 border border-amber-200", "border-l-amber-500", "1.5s"),
+        metricCard("Reschedule (RFR)", tTot.rfr, "⟲", "bg-indigo-50 text-indigo-700 border border-indigo-200", "border-l-indigo-500", "1.8s"),
+        metricCard("Havy load", tTot.heavy, "⚖", "bg-orange-50 text-orange-700 border border-orange-200", "border-l-orange-500", "2.1s")
+      ].join("");
+
+      // Overall Conversion Cards
+      const cTot = calcMetrics(cumulativeData);
+      const cRate = cTot.ofd ? ((cTot.del / cTot.ofd) * 100).toFixed(2) : "0.00";
+      document.getElementById('cumPrimaryMetrics').innerHTML = [
+        metricCard("Overall OFD", cTot.ofd, "🚚", "bg-sky-50 text-sky-700 border border-sky-200", "border-l-sky-500", "0s"),
+        metricCard("Overall DEL", cTot.del, "✓", "bg-emerald-50 text-emerald-700 border border-emerald-200", "border-l-emerald-500", "0.3s"),
+        metricCard("Overall Conv.", cRate + "%", "↗", "bg-purple-50 text-purple-700 border border-purple-200", "border-l-purple-500", "0.6s"),
+        metricCard("Total Agents", cumulativeData.length, "👥", "bg-cyan-50 text-cyan-700 border border-cyan-200", "border-l-cyan-500", "0.9s")
+      ].join("");
+
+      document.getElementById('cumSecondaryMetrics').innerHTML = [
+        metricCard("Total ORC", cTot.orc, "✕", "bg-rose-50 text-rose-700 border border-rose-200", "border-l-rose-500", "1.2s"),
+        metricCard("No Response (CNR)", cTot.cnr, "☎", "bg-amber-50 text-amber-700 border border-amber-200", "border-l-amber-500", "1.5s"),
+        metricCard("Reschedule (RFR)", cTot.rfr, "⟲", "bg-indigo-50 text-indigo-700 border border-indigo-200", "border-l-indigo-500", "1.8s"),
+        metricCard("Total Havy load", cTot.heavy, "⚖", "bg-orange-50 text-orange-700 border border-orange-200", "border-l-orange-500", "2.1s")
+      ].join("");
+
+      renderTables();
+    }
+
+    function renderTables() {
+      const qD = (document.getElementById('searchDaily')?.value || "").toLowerCase();
+      const qO = (document.getElementById('searchOverall')?.value || "").toLowerCase();
+
+      const buildRows = (arr, q) => arr.filter(r => r.name.toLowerCase().includes(q)).map(r => `
+        <tr class="hover:bg-sky-50/60 transition">
+          <td class="p-3 text-center font-black text-slate-900 whitespace-normal break-words min-w-[140px] border border-slate-300">${escapeHTML(r.name)}</td>
+          <td class="p-2 border border-slate-300 text-center">${getConvBadge(r.conversion)}</td>
+          <td class="p-3 font-black text-slate-900 border border-slate-300 text-center">${r.ofd}</td>
+          <td class="p-3 text-emerald-800 font-black border border-slate-300 text-center">${r.del}</td>
+          <td class="p-3 text-rose-800 font-black border border-slate-300 text-center">${r.orc}</td>
+          <td class="p-3 text-amber-800 font-black border border-slate-300 text-center">${r.cnr}</td>
+          <td class="p-3 text-indigo-800 font-black border border-slate-300 text-center">${r.rfr}</td>
+          <td class="p-3 text-orange-800 font-black border border-slate-300 text-center">${r.heavyLoad}</td>
+        </tr>
+      `).join("") || `<tr><td colspan="8" class="p-4 text-slate-500 border border-slate-300 font-black text-center">No agents found</td></tr>`;
+
+      document.getElementById('todayTable').innerHTML = buildRows(todayData, qD);
+      document.getElementById('cumulativeTable').innerHTML = buildRows(cumulativeData, qO);
+    }
+
+    function formatCellDisplay(column, value) {
+      if (value === null || value === undefined || value === "") return "";
+      const str = String(value);
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(str)) {
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      }
+      if (/(conv|%|\brate\b)/i.test(column)) {
+        const numeric = Number(str.replace(/,/g, "").replace(/%$/, ""));
+        if (Number.isFinite(numeric)) {
+          const pct = (!str.includes("%") && numeric > 0 && numeric <= 1) ? (numeric * 100) : numeric;
+          return getConvBadge(pct);
+        }
+      }
+      return escapeHTML(str);
+    }
+
+    function renderSheetRows(container, rawRows) {
+      const rows = normalizeSheetPayload(rawRows);
+      if (!Array.isArray(rows) || !rows.length) {
+        container.innerHTML = '<p class="text-center text-slate-500 py-4 font-bold">No records found for this selection.</p>';
+        return;
+      }
+      const columns = [...new Set(rows.flatMap(row => Object.keys(row || {})))].filter(Boolean);
+      if (!columns.length) {
+        container.textContent = "The sheet returned records without columns.";
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="overflow-x-auto custom-scroll">
+          <table class="w-full text-xs text-center border-collapse border border-slate-300">
+            <thead class="sticky top-0 bg-slate-100 text-slate-700 uppercase text-[11px] font-black z-20 shadow-sm">
+              <tr>
+                ${columns.map(col => `<th scope="col" class="p-3 text-center border border-slate-300 bg-slate-100">${escapeHTML(col)}</th>`).join("")}
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-300 font-bold text-slate-900">
+              ${rows.map(row => `
+                <tr class="hover:bg-violet-50/50 transition">
+                  ${columns.map((col, idx) => `
+                    <td class="p-3 border border-slate-300 text-center ${idx === 0 ? 'font-black text-slate-900 whitespace-normal min-w-[130px]' : 'font-bold text-slate-900'}">
+                      ${formatCellDisplay(col, row?.[col])}
+                    </td>
+                  `).join("")}
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    async function loadPickupData(forceRefresh = false) {
+      const container = document.getElementById("pickupContent");
+      const button = document.getElementById("pickupRefreshButton");
+      if (!forceRefresh && rawPickupRows.length > 0) {
+        filterPickupTable();
+        return;
+      }
+      button.disabled = true;
+      container.innerHTML = '<div class="py-6 text-center text-slate-500 font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading Pickup data...</div>';
+
+      try {
+        let rows = [];
+        try {
+          const url = new URL(APPS_SCRIPT_URL);
+          url.searchParams.set("action", "pickup");
+          const res = await fetch(url);
+          if (res.ok) {
+            const data = await res.json();
+            rows = normalizeSheetPayload(data.pickupData || data.pickup || data.rows || []);
+          }
+        } catch (e) {}
+
+        if (!rows || rows.length === 0) {
+          rows = await fetchDirectGoogleSheetTab(["pickup", "Pickup"]);
+        }
+
+        rawPickupRows = rows || [];
+        filterPickupTable();
+        setConnectionStatus("online");
+      } catch (err) {
+        console.error("Pickup load error:", err);
+        filterPickupTable();
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function filterPickupTable() {
+      const q = (document.getElementById("searchPickup")?.value || "").toLowerCase().trim();
+      const container = document.getElementById("pickupContent");
+      if (!q) {
+        renderSheetRows(container, rawPickupRows);
+        return;
+      }
+      const filtered = rawPickupRows.filter(r =>
+        Object.values(r || {}).some(val => String(val ?? "").toLowerCase().includes(q))
+      );
+      renderSheetRows(container, filtered);
+    }
+
+    let conversionCache = {};
+    let conversionReqId = 0;
+    const CONV_SHEET_NAMES = ["ChabuaHub", "chabuahub", "Daily Conv Data"];
+
+    function normalizeDateOnly(val) {
+      if (val === null || val === undefined || val === "") return "";
+      const str = String(val).trim();
+      const pad = n => String(n).padStart(2, "0");
+      if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0, 10);
+      let m = str.match(/^Date\((\d{4}),\s*(\d{1,2}),\s*(\d{1,2})/);
+      if (m) return `${m[1]}-${pad(+m[2] + 1)}-${pad(m[3])}`;
+      m = str.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+      if (m) return `${m[3]}-${pad(m[2])}-${pad(m[1])}`;
+      const d = /[a-z]{3}/i.test(str) ? new Date(str) : new Date(NaN);
+      if (!isNaN(d.getTime())) return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+      return "";
+    }
+
+    function fetchGvizGrid(sheetNames, validate) {
+      const candidates = Array.isArray(sheetNames) ? sheetNames : [sheetNames];
+      let firstNonEmpty = null;
+      const trySheet = (index) => new Promise((resolve) => {
+        if (index >= candidates.length) { resolve(firstNonEmpty || []); return; }
+        const cbName = "gvizGrid_" + Math.random().toString(36).slice(2);
+        const script = document.createElement("script");
+        let done = false;
+        let timer = null;
+        const finish = (grid) => {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          delete window[cbName];
+          if (script.parentNode) script.parentNode.removeChild(script);
+          if (grid && grid.length) {
+            if (!firstNonEmpty) firstNonEmpty = grid;
+            if (!validate || validate(grid)) { resolve(grid); return; }
+          }
+          trySheet(index + 1).then(resolve);
+        };
+        timer = setTimeout(() => finish(null), 8000);
+        window[cbName] = (response) => {
+          try {
+            if (!response || response.status === "error" || !response.table) return finish(null);
+            const grid = (response.table.rows || []).map(r => (r && r.c ? r.c : []).map(cell => cell ? String(cell.f ?? cell.v ?? "") : ""));
+            finish(grid);
+          } catch (e) { finish(null); }
+        };
+        script.onerror = () => finish(null);
+        script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}&headers=0&sheet=${encodeURIComponent(candidates[index])}`;
+        document.body.appendChild(script);
+      });
+      return trySheet(0);
+    }
+
+    function gridFromPayload(payload) {
+      if (!Array.isArray(payload) || !payload.length) return [];
+      if (Array.isArray(payload[0])) return payload.map(r => (r || []).map(c => c == null ? "" : String(c)));
+      const keys = [...new Set(payload.flatMap(o => Object.keys(o || {})))];
+      return [keys, ...payload.map(o => keys.map(k => o?.[k] == null ? "" : String(o[k])))];
+    }
+
+    function parseConversionGrid(grid) {
+      const clean = v => { const t = String(v ?? "").trim(); return /^Col_\d+$/i.test(t) ? "" : t; };
+      const isBlank = v => String(v ?? "").trim() === "";
+      let selectedDate = "";
+      let start = 0;
+      for (let i = 0; i < Math.min(grid.length, 8); i++) {
+        const row = grid[i] || [];
+        const li = row.findIndex(c => /select\s*date/i.test(String(c ?? "")));
+        if (li !== -1) {
+          const cand = row.slice(li + 1).map(clean).find(v => v !== "");
+          selectedDate = normalizeDateOnly(cand || "");
+          start = i + 1;
+          break;
+        }
+      }
+      let h = start;
+      while (h < grid.length) {
+        const rStr = (grid[h] || []).map(c => String(c).toLowerCase()).join(" ");
+        if (rStr.includes("wishmaster") || rStr.includes("agent") || (rStr.includes("ofd") && rStr.includes("del"))) {
+          break;
+        }
+        h++;
+      }
+      if (h >= grid.length) h = start;
+
+      const body = grid.slice(h + 1).filter(r => (r || []).some(c => !isBlank(c)));
+      const rawHeaders = (grid[h] || []).map(clean);
+      const defaultHeaders = ["Wishmaster", "OFD", "DEL", "ORC", "CNR", "RFR", "Heavy Load", "Conversion %"];
+      
+      const headers = rawHeaders.map((hd, i) => hd !== "" ? hd : (defaultHeaders[i] || `Col_${i+1}`));
+      const keep = headers.map((hd, ci) => (hd !== "" || body.some(r => !isBlank(r[ci]))) ? ci : -1).filter(ci => ci !== -1);
+
+      return {
+        selectedDate,
+        headers: keep.map(ci => headers[ci]),
+        rows: body.map(r => keep.map(ci => String(r[ci] ?? "").trim()))
+      };
+    }
+
+    function renderConversionTable(container, parsed) {
+      const { headers, rows } = parsed;
+      if (!headers.length || !rows.length) {
+        container.innerHTML = '<p class="text-center text-slate-500 py-4 font-bold">No conversion records available for this date.</p>';
+        return;
+      }
+      container.innerHTML = `
+        <div class="overflow-x-auto custom-scroll">
+          <table class="w-full text-xs text-center border-collapse border border-slate-300">
+            <thead class="sticky top-0 bg-slate-100 text-slate-700 uppercase text-[11px] font-black z-20 shadow-sm">
+              <tr>${headers.map(h => `<th scope="col" class="p-3 text-center border border-slate-300 bg-slate-100">${escapeHTML(h)}</th>`).join("")}</tr>
+            </thead>
+            <tbody class="divide-y divide-slate-300 font-bold text-slate-900">
+              ${rows.map(row => {
+                const isTotal = /total/i.test(String(row[0] ?? ""));
+                return `<tr class="${isTotal ? 'bg-slate-100 font-black' : 'hover:bg-cyan-50/50'} transition">` +
+                  headers.map((h, ci) => `<td class="p-3 border border-slate-300 text-center ${ci === 0 ? 'font-black text-slate-900 whitespace-normal min-w-[110px]' : 'font-bold text-slate-900'}">${formatCellDisplay(h, row[ci])}</td>`).join("") +
+                  `</tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function showConversion(result, wanted) {
+      const container = document.getElementById("conversionContent");
+      const dateInput = document.getElementById("conversionDate");
+      if (!wanted && result.selectedDate) dateInput.value = result.selectedDate;
+      let notice = "";
+      if (wanted && result.selectedDate && result.selectedDate !== wanted) {
+        notice = `<div class="mb-3 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold">Showing data for ${escapeHTML(result.selectedDate)}.</div>`;
+      }
+      container.innerHTML = notice + '<div id="convTable"></div>';
+      renderConversionTable(document.getElementById("convTable"), result);
+    }
+
+    function onConversionDateChange() { loadConversionData(false); }
+
+    function gvizQuery(sheetName, tq) {
+      return new Promise((resolve) => {
+        const cb = "gvizQ_" + Math.random().toString(36).slice(2);
+        const script = document.createElement("script");
+        let done = false;
+        let timer = null;
+        const finish = (val) => {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          delete window[cb];
+          if (script.parentNode) script.parentNode.removeChild(script);
+          resolve(val);
+        };
+        timer = setTimeout(() => finish(null), 12000);
+        window[cb] = (resp) => {
+          try {
+            if (!resp || resp.status === "error" || !resp.table) return finish(null);
+            finish((resp.table.rows || []).map(r => (r && r.c ? r.c : []).map(c => c ? (c.v ?? "") : "")));
+          } catch (e) { finish(null); }
+        };
+        script.onerror = () => finish(null);
+        script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cb}&headers=1&sheet=${encodeURIComponent(sheetName)}&tq=${encodeURIComponent(tq)}`;
+        document.body.appendChild(script);
+      });
+    }
+
+    function buildConversionFromMtd(rows) {
+      const map = new Map();
+      rows.forEach(r => {
+        const name = String(r[0] ?? "").trim();
+        if (!name) return;
+        const key = name.toLowerCase();
+        let a = map.get(key);
+        if (!a) { a = { name, ofd: 0, del: 0, orc: 0, cnr: 0, rfr: 0, heavy: 0 }; map.set(key, a); }
+        a.ofd += toNumber(r[1]); a.del += toNumber(r[2]); a.orc += toNumber(r[3]);
+        a.cnr += toNumber(r[4]); a.rfr += toNumber(r[5]); a.heavy += toNumber(r[6]);
+      });
+      const list = [...map.values()].map(a => ({ ...a, conv: a.ofd ? a.del / a.ofd : 0 }));
+      list.sort((x, y) => (y.conv - x.conv) || (y.ofd - x.ofd));
+      return {
+        headers: ["Wishmaster", "OFD", "DEL", "ORC", "CNR", "RFR", "Heavy Load", "Conversion %"],
+        rows: list.map(a => [a.name, a.ofd, a.del, a.orc, a.cnr, a.rfr, a.heavy, (a.conv * 100).toFixed(1) + "%"].map(String))
+      };
+    }
+
+    async function loadFromMtd(dateStr) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return null;
+      const base = "select D, F, G, J, I, K, L where D is not null and ";
+      const attempts = [`Q = date '${dateStr}'`, `Q = '${dateStr}'`];
+      for (const cond of attempts) {
+        const rows = await gvizQuery("MTD Data", base + cond);
+        if (rows) return { selectedDate: dateStr, ...buildConversionFromMtd(rows) };
+      }
+      return null;
+    }
+
+    async function loadFromChabuaHubTab() {
+      let parsed = null;
+      try {
+        const grid = await fetchGvizGrid(CONV_SHEET_NAMES, g => g.slice(0, 8).some(r => (r || []).some(c => /select\s*date/i.test(c))));
+        if (grid.length) parsed = parseConversionGrid(grid);
+      } catch (e) {}
+      if (!parsed) {
+        try {
+          const url = new URL(APPS_SCRIPT_URL);
+          url.searchParams.set("action", "conversion");
+          const res = await fetch(url);
+          if (res.ok) {
+            const data = await res.json();
+            const grid = gridFromPayload(data.conversionData || data.chabuaHubData || []);
+            if (grid.length) parsed = parseConversionGrid(grid);
+          }
+        } catch (e) {}
+      }
+      if (parsed) parsed.rows = parsed.rows.filter(r => !/no data found/i.test(String(r[0] ?? "")));
+      return parsed;
+    }
+
+    async function loadConversionData(forceRefresh = false) {
+      const container = document.getElementById("conversionContent");
+      const button = document.getElementById("conversionRefreshButton");
+      const wanted = document.getElementById("conversionDate").value || "";
+      const key = wanted || "__current__";
+      if (!forceRefresh && conversionCache[key]) { showConversion(conversionCache[key], wanted); return; }
+
+      const reqId = ++conversionReqId;
+      button.disabled = true;
+      container.innerHTML = '<div class="py-6 text-center text-slate-500 font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading data...</div>';
+
+      try {
+        let result = null;
+        if (wanted) {
+          const mtd = await loadFromMtd(wanted);
+          if (mtd && mtd.rows.length) {
+            result = mtd;
+          } else {
+            const sheetRes = await loadFromChabuaHubTab();
+            if (sheetRes && sheetRes.rows.length && sheetRes.selectedDate === wanted) result = sheetRes;
+            else if (mtd) result = { selectedDate: wanted, headers: [], rows: [] };
+            else result = sheetRes;
+          }
+        } else {
+          result = await loadFromChabuaHubTab();
+        }
+        if (reqId !== conversionReqId) return;
+        if (!result) throw new Error("No conversion data");
+        if (!wanted || !result.selectedDate || result.selectedDate === wanted) {
+          conversionCache[key] = result;
+          if (result.selectedDate) conversionCache[result.selectedDate] = result;
+        }
+        showConversion(result, wanted);
+        setConnectionStatus("online");
+      } catch (err) {
+        console.error("Conversion load error:", err);
+        if (reqId !== conversionReqId) return;
+        container.innerHTML = '<p class="text-center text-rose-600 py-4 font-bold">Data load nahi hua. Refresh dabao.</p>';
+      } finally {
+        if (reqId === conversionReqId) button.disabled = false;
+      }
+    }
+
+    function setScannerMode(mode) {
+      scannerMode = mode;
+      document.getElementById('modeSingleBtn').className = mode === 'single' ? 'px-3 py-1 rounded-lg bg-white text-slate-900 shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+      document.getElementById('modeBatchBtn').className = mode === 'batch' ? 'px-3 py-1 rounded-lg bg-white text-slate-900 shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+      document.getElementById('exportBatchBtn').classList.toggle('hidden', mode !== 'batch' || scanHistory.length === 0);
+      showToast(`Scanner mode: ${mode.toUpperCase()}`);
+    }
+
+    function toggleCamera() {
+      cameraActive = !cameraActive;
+      const btn = document.getElementById('toggleCamBtn');
+      const readerEl = document.getElementById('reader');
+      if (cameraActive) {
+        btn.innerHTML = `<i class="fa-solid fa-video-slash"></i> <span>Stop Camera</span>`;
+        readerEl.style.display = 'block';
+        startScanner();
+      } else {
+        btn.innerHTML = `<i class="fa-solid fa-video"></i> <span>Start Camera</span>`;
+        readerEl.style.display = 'none';
+        stopScanner();
+      }
+    }
+
+    function startScanner() {
+      if (!cameraActive || scannerInstance) return;
+      const readerEl = document.getElementById('reader');
+      if (!readerEl || readerEl.offsetParent === null) return;
+      try {
+        scannerInstance = new Html5QrcodeScanner("reader", { fps: 15, qrbox: { width: 250, height: 120 } }, false);
+        scannerInstance.render(onScanSuccess, () => {});
+      } catch (e) {
+        console.error("Unable to start barcode scanner:", e);
+      }
+    }
+
+    function stopScanner() {
+      if (scannerInstance) {
+        scannerInstance.clear().catch(err => console.error("Unable to stop barcode scanner:", err));
+        scannerInstance = null;
+      }
+    }
+
+    function onScanSuccess(text) {
+      const now = Date.now();
+      if (text === lastScanCode && now - lastScanTime < 3000) return;
+      lastScanCode = text;
+      lastScanTime = now;
+      processBarcode(text);
+    }
+
+    function manualScan() {
+      const val = document.getElementById('manualInput').value;
+      if (val) {
+        processBarcode(val);
+        document.getElementById('manualInput').value = '';
+      }
+    }
+
+    async function processBarcode(scannedId) {
+      if (!scannedId) return;
+      const clean = scannedId.trim().toUpperCase();
+
+      const box = document.getElementById('scannerResultBox');
+      const badge = document.getElementById('scanStatusBadge');
+      const resOrder = document.getElementById('resOrderId');
+      const resPrice = document.getElementById('resPrice');
+      const resBag = document.getElementById('resBagId');
+      const resTrack = document.getElementById('resTrackingId');
+      const timeEl = document.getElementById('scanTime');
+
+      box.classList.remove('hidden');
+      box.className = "rounded-xl p-4 border text-left space-y-3 bg-sky-50 border-sky-300 text-sky-900";
+      badge.textContent = "SEARCHING...";
+      badge.className = "text-[10px] font-black bg-sky-200 text-sky-900 px-2 py-0.5 rounded";
+      resOrder.textContent = "Looking up in sheet...";
+      resPrice.textContent = "--";
+      resBag.textContent = "--";
+      resTrack.textContent = clean;
+      const timeStr = new Date().toLocaleTimeString();
+      timeEl.textContent = timeStr;
+
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?trackingId=${encodeURIComponent(clean)}`);
+        if (!res.ok) throw new Error(`Backend returned HTTP ${res.status}`);
+        const data = await res.json();
+
+        const bagIdVal = data.bagId || data.bag || data.hubBagId || data.bag_id || data.columnQ || data.colQ || data.q || "N/A";
+        let scanResultItem = {
+          trackingId: clean,
+          orderId: data.orderId || "N/A",
+          price: data.price || 0,
+          bagId: bagIdVal,
+          status: data.status === 'success' ? 'VERIFIED' : 'NOT FOUND',
+          time: timeStr
+        };
+
+        if (data.status === 'success') {
+          box.className = "rounded-xl p-4 border text-left space-y-3 bg-emerald-50 border-emerald-300";
+          badge.textContent = "VERIFIED";
+          badge.className = "text-[10px] font-black bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded";
+          resOrder.textContent = data.orderId || "N/A";
+          resPrice.textContent = `₹${data.price || 0}`;
+          resBag.textContent = bagIdVal;
+          resTrack.textContent = clean;
+          playTone(true);
+        } else {
+          box.className = "rounded-xl p-4 border text-left space-y-3 bg-rose-50 border-rose-300";
+          badge.textContent = "NOT FOUND";
+          badge.className = "text-[10px] font-black bg-rose-200 text-rose-900 px-2 py-0.5 rounded";
+          resOrder.textContent = "No Order ID Found";
+          resPrice.textContent = "₹0";
+          resBag.textContent = "N/A";
+          playTone(false);
+        }
+
+        scanHistory.unshift(scanResultItem);
+        updateScanHistoryUI();
+
+      } catch (err) {
+        box.className = "rounded-xl p-4 border text-left space-y-3 bg-rose-50 border-rose-300";
+        badge.textContent = "LOOKUP FAILED";
+        badge.className = "text-[10px] font-black bg-rose-200 text-rose-900 px-2 py-0.5 rounded";
+        resOrder.textContent = "Connection error — try again";
+        resPrice.textContent = "₹0";
+        resBag.textContent = "N/A";
+        playTone(false);
+
+        scanHistory.unshift({
+          trackingId: clean,
+          orderId: "Error",
+          price: 0,
+          bagId: "N/A",
+          status: 'ERROR',
+          time: timeStr
+        });
+        updateScanHistoryUI();
+      }
+    }
+
+    function updateScanHistoryUI() {
+      const listEl = document.getElementById('scanHistoryList');
+      document.getElementById('historyCount').textContent = scanHistory.length;
+      document.getElementById('batchCount').textContent = scanHistory.length;
+      document.getElementById('exportBatchBtn').classList.toggle('hidden', scannerMode !== 'batch' || scanHistory.length === 0);
+
+      if (scanHistory.length === 0) {
+        listEl.innerHTML = '<div class="text-center py-4 text-slate-500 font-bold text-xs">No items scanned yet in this session.</div>';
+        return;
+      }
+
+      listEl.innerHTML = scanHistory.map((item) => {
+        const isVer = item.status === 'VERIFIED';
+        const bgCol = isVer ? 'bg-emerald-50 border-emerald-300 text-emerald-950' : (item.status === 'NOT FOUND' ? 'bg-amber-50 border-amber-300 text-amber-950' : 'bg-rose-50 border-rose-300 text-rose-950');
+        return `
+          <div class="p-2.5 rounded-xl border ${bgCol} flex items-center justify-between gap-2 shadow-xs">
+            <div class="truncate mr-2">
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-black">${escapeHTML(item.trackingId)}</span>
+                <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-white/80">${item.status}</span>
+              </div>
+              <div class="text-[11px] font-bold text-slate-800 truncate mt-0.5">Order: ${escapeHTML(item.orderId)} | Bag: ${escapeHTML(item.bagId)} | ₹${item.price} (${item.time})</div>
+            </div>
+            <button onclick="copyText('${escapeHTML(item.orderId)}')" title="Copy Order ID" class="w-7 h-7 rounded-lg bg-white text-slate-800 border border-slate-300 flex items-center justify-center transition active:scale-90 flex-shrink-0 shadow-sm">
+              <i class="fa-regular fa-copy text-xs"></i>
+            </button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function clearScanHistory() {
+      scanHistory = [];
+      updateScanHistoryUI();
+      showToast("Scan history cleared");
+    }
+
+    async function exportBatchScans() {
+      if (scanHistory.length === 0) return;
+      let text = "Tracking ID\tOrder ID\tBag ID\tPrice\tStatus\tTime\n";
+      scanHistory.forEach(i => {
+        text += `${i.trackingId}\t${i.orderId}\t${i.bagId}\t${i.price}\t${i.status}\t${i.time}\n`;
+      });
+      const ok = await copyText(text);
+      showToast(ok ? "Batch scan list copied to clipboard!" : "Export failed", !ok);
+    }
+
+    async function copyOrderId() {
+      const val = document.getElementById('resOrderId').textContent;
+      if (val && val !== "--" && !val.includes("No Order") && !val.includes("Looking up") && !val.includes("Connection error")) {
+        const ok = await copyText(val);
+        showToast(ok ? "Order ID copied to clipboard!" : "Copy failed", !ok);
+      }
+    }
+
+    function playTone(success) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination);
+        osc.frequency.value = success ? 880 : 220;
+        g.gain.setValueAtTime(0.2, ctx.currentTime);
+        osc.start(); osc.stop(ctx.currentTime + 0.15);
+      } catch(e) {}
+    }
+
+    function initCashInputs() {
+      const rows = document.getElementById('denomRows');
+      rows.innerHTML = denoms.map(d => `
+        <div class="flex items-center justify-between gap-2 text-sm font-bold">
+          <span class="w-12 text-slate-700">₹${d}</span>
+          <span class="text-slate-500">x</span>
+          <label class="sr-only" for="count-${d}">Count of ₹${d} notes</label>
+          <input type="number" min="0" id="count-${d}" oninput="calculateCash()" class="w-28 py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-center text-slate-900 font-black focus:border-sky-500 shadow-inner">
+          <span class="text-slate-500">=</span>
+          <span class="w-24 text-right font-black text-slate-900" id="subtotal-${d}">0</span>
+        </div>
+      `).join('');
+    }
+
+    function calculateCash() {
+      let total = 0;
+      denoms.forEach(d => {
+        const count = parseInt(document.getElementById(`count-${d}`).value) || 0;
+        const sub = count * d;
+        total += sub;
+        document.getElementById(`subtotal-${d}`).textContent = sub.toLocaleString('en-IN');
+      });
+
+      const coins = parseInt(document.getElementById('count-coins').value) || 0;
+      total += coins;
+      document.getElementById('subtotal-coins').textContent = coins.toLocaleString('en-IN');
+
+      document.getElementById('inpage-total-amount').textContent = `₹${total.toLocaleString('en-IN')}`;
+      document.getElementById('total-in-words').textContent = toIndianWords(total);
+
+      const teller = parseInt(document.getElementById('teller-balance-input').value) || 0;
+      const badge = document.getElementById('tellerStatusBadge');
+      if (teller > 0) {
+        badge.classList.remove('hidden');
+        const diff = total - teller;
+        if (diff === 0) {
+          badge.className = "text-center text-xs font-black pt-1 text-emerald-700";
+          badge.textContent = "Status: Perfectly Balanced ✓";
+        } else if (diff > 0) {
+          badge.className = "text-center text-xs font-black pt-1 text-sky-700";
+          badge.textContent = `Status: Excess by ₹${diff.toLocaleString('en-IN')}`;
+        } else {
+          badge.className = "text-center text-xs font-black pt-1 text-rose-700";
+          badge.textContent = `Status: Short by ₹${Math.abs(diff).toLocaleString('en-IN')}`;
+        }
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function switchCashSubTab(t) {
+      document.getElementById('cashCalcPanel').classList.toggle('hidden', t !== 'calc');
+      document.getElementById('cashReportPanel').classList.toggle('hidden', t !== 'report');
+      const calcSelected = t === 'calc';
+      document.getElementById('subTabCalc').className = calcSelected ? 'flex-1 py-1.5 text-center text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm' : 'flex-1 py-1.5 text-center text-xs font-bold rounded-lg text-slate-700 hover:text-slate-900';
+      document.getElementById('subTabReport').className = calcSelected ? 'flex-1 py-1.5 text-center text-xs font-bold rounded-lg text-slate-700 hover:text-slate-900' : 'flex-1 py-1.5 text-center text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm';
+      if (t === 'report') renderCashReport();
+    }
+
+    function renderCashReport() {
+      document.getElementById('report-date-str').textContent = new Date().toLocaleString('en-IN');
+      let total = 0;
+      let html = '';
+
+      denoms.forEach(d => {
+        const c = parseInt(document.getElementById(`count-${d}`).value) || 0;
+        if (c > 0) {
+          const sub = c * d;
+          total += sub;
+          html += `<div class="flex justify-between py-1 border-b border-slate-200 font-bold"><span>₹${d} × ${c}</span><span class="text-slate-900">₹${sub.toLocaleString('en-IN')}</span></div>`;
+        }
+      });
+
+      const coins = parseInt(document.getElementById('count-coins').value) || 0;
+      if (coins > 0) {
+        total += coins;
+        html += `<div class="flex justify-between py-1 border-b border-slate-200 font-bold"><span>Coins</span><span class="text-slate-900">₹${coins.toLocaleString('en-IN')}</span></div>`;
+      }
+
+      document.getElementById('report-item-list').innerHTML = html || '<p class="text-center text-slate-500 py-3 font-bold">No cash counted yet</p>';
+      document.getElementById('report-total-sum').textContent = `₹${total.toLocaleString('en-IN')}`;
+    }
+
+    function buildCashReportText() {
+      let t = `*CHABUA HUB - CASH REPORT*\nDate: ${new Date().toLocaleString('en-IN')}\n--------------------\n`;
+      let total = 0;
+      denoms.forEach(d => {
+        const c = parseInt(document.getElementById(`count-${d}`).value) || 0;
+        if (c > 0) {
+          const s = c * d; total += s;
+          t += `₹${d} x ${c} = ₹${s.toLocaleString('en-IN')}\n`;
+        }
+      });
+      const coins = parseInt(document.getElementById('count-coins').value) || 0;
+      if (coins > 0) { total += coins; t += `Coins = ₹${coins.toLocaleString('en-IN')}\n`; }
+      t += `--------------------\n*TOTAL CASH: ₹${total.toLocaleString('en-IN')}*\n`;
+      return t;
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          const ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          return ok;
+        } catch (e2) { return false; }
+      }
+    }
+
+    async function copyCashReport() {
+      const ok = await copyText(buildCashReportText());
+      showToast(ok ? "Report copied to clipboard!" : "Copy failed", !ok);
+    }
+
+    function resetCash() {
+      denoms.forEach(d => document.getElementById(`count-${d}`).value = '');
+      document.getElementById('count-coins').value = '';
+      document.getElementById('teller-balance-input').value = '';
+      calculateCash();
+      showToast("Cash counter cleared");
+    }
+
+    function toIndianWords(num) {
+      if (!num) return "Zero Rupees Only";
+      const a = ['','One ','Two ','Three ','Four ','Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+      const b = ['', '', 'Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+      function inWords(n) { return n > 19 ? b[Math.floor(n/10)] + ' ' + a[n%10] : a[n]; }
+      let str = "";
+      if (Math.floor(num / 10000000) > 0) str += inWords(Math.floor(num / 10000000)) + "Crore ";
+      if (Math.floor((num % 10000000) / 100000) > 0) str += inWords(Math.floor((num % 10000000) / 100000)) + "Lakh ";
+      if (Math.floor((num % 100000) / 1000) > 0) str += inWords(Math.floor((num % 100000) / 1000)) + "Thousand ";
+      if (Math.floor((num % 1000) / 100) > 0) str += inWords(Math.floor((num % 1000) / 100)) + "Hundred ";
+      if (num % 100 > 0) str += (str ? "and " : "") + inWords(num % 100);
+      return str.trim() + " Rupees Only";
+    }
+
+    function showToast(msg, isErr = false) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      document.getElementById('toastIcon').textContent = isErr ? '✕' : '✓';
+      document.getElementById('toastIcon').className = isErr ? 'text-rose-500' : 'text-emerald-500';
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.add('opacity-0', 'pointer-events-none'), 2500);
+    }
+
+    window.onload = () => {
+      initCashInputs();
+      calculateCash();
+      renderDashboard();
+      fetchSheetData();
+      setInterval(() => fetchSheetData(true), 60 * 60 * 1000);
+    };
+  </script>
+</body>
+</html>
